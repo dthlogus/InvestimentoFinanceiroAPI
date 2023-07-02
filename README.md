@@ -13,7 +13,7 @@ https://www.notion.so/Projetos-De-Software-Medium-aa5ea8aa4f814a9fa21f802892199c
 Por se tratar de um sistema embrionario, esse tópico ainda poderá mudar.
 
 - C# Versão 7.0 - Linguagem de programação
-- https://www.alphavantage.co/ - API Externa
-- Swagger - Documentação da API
+- https://rapidapi.com/sparior/api/yahoo-finance15 - API Externa
+- https://documenter.getpostman.com/view/15824835/2s93zCXzxz - Postman - Documentação da API 
 - Git - Controlador de Versão
 - Firebase - Banco de dados não relacional
