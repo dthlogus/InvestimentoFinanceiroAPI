@@ -1,7 +1,10 @@
 using API_Financeira.Config;
 using API_Financeira.Service;
+using Google.Cloud.Firestore;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+var firebaseJson = JsonSerializer.Serialize(new FirebaseSettings());
 
 // Add services to the container.
 
@@ -11,6 +14,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<StockService>();
+builder.Services.AddSingleton(_ => new FirestoreProvider(
+         new FirestoreDbBuilder
+         {
+             ProjectId = FirebaseSettings.ProjectId,
+             JsonCredentials = firebaseJson // <-- service account json file
+         }.Build()
+));
 
 var app = builder.Build();
 
