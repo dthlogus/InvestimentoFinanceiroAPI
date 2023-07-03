@@ -1,12 +1,10 @@
-using API_Financeira.Config;
 using API_Financeira.Service;
+using FirebaseAdmin;
 using Google.Cloud.Firestore;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
-var firebaseJson = JsonSerializer.Serialize(new FirebaseSettings());
-
-// Add services to the container.
+FirestoreDb db = FirestoreDb.Create("investimentoFinanceiro");
+Console.WriteLine("Created Cloud Firestore client with project ID: {0}", "investimentoFinanceiro");
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -14,24 +12,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<StockService>();
-builder.Services.AddSingleton(_ => new FirestoreProvider(
-         new FirestoreDbBuilder
-         {
-             ProjectId = FirebaseSettings.ProjectId,
-             JsonCredentials = firebaseJson // <-- service account json file
-         }.Build()
-));
+builder.Services.AddScoped<UsuarioService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
 
 app.UseHttpsRedirection();
 
