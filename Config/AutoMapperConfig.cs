@@ -16,6 +16,10 @@ namespace API_Financeira.Config
                 .ForMember(dest => dest.LPA, opt => opt.MapFrom(src => src.EpsTrailingTwelveMonths))
                 .ForMember(dest => dest.Symbol, opt => opt.MapFrom(src => src.Symbol))
                 .ForMember(dest => dest.LongName, opt => opt.MapFrom(src => src.LongName));
+
+            CreateMap<Usuario, UsuarioDTO>()
+                .ForMember(dest => dest.Nome, opt => opt.MapFrom(src => src.Nome))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
         }
 
         public static IMapper Initialize()
