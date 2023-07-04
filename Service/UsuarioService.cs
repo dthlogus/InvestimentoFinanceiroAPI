@@ -1,13 +1,10 @@
 ﻿using API_Financeira.DTO;
+using API_Financeira.Exceptions;
 using API_Financeira.Models;
 using AutoMapper;
-using FirebaseAdmin;
 using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Firestore;
-using System.Net.Http;
 
 namespace API_Financeira.Service
 {
@@ -19,10 +16,6 @@ namespace API_Financeira.Service
 
         public UsuarioService(IMapper mapper)
         {
-            string appName = "InvestimentoFinanceiro";
-
-
-
             _mapper = mapper;
         }
 
@@ -32,20 +25,28 @@ namespace API_Financeira.Service
             BasePath = "https://investimentofinanceiro-ab26f-default-rtdb.firebaseio.com/"
         };
 
-        IFirebaseClient client;
+        IFirebaseClient? client;
 
-        public async Task<UsuarioDTO> adicionarUsuario(Usuario usuario)
+        public UsuarioDTO adicionarUsuario(Usuario usuario)
         {
             try
             {
                 client = new FirebaseClient(firebase);
+                var userReturn = client.Get("ListaUsuario/" + usuario.Username);
+                if (userReturn != null)
+                {
+                    throw new UsuarioJaExisteException("Esse usuário já existe, por favor, escolha outro");
+                }
                 var user = client.Set("ListaUsuario/" + usuario.Username, usuario);
                 UsuarioDTO userDTO = _mapper.Map<Usuario, UsuarioDTO>(user.ResultAs<Usuario>());
                 userDTO.Id = "ListaUsuario/" + usuario.Username;
                 return userDTO;
-            }catch (Exception ex)
+            }catch (UsuarioJaExisteException ex) 
             {
-                throw;
+                throw new UsuarioJaExisteException(ex.Message);
+            }catch (Exception)
+            {
+                throw new Exception("Ocorreu um erro inesperado");
             }
         }
     }

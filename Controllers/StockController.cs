@@ -28,7 +28,7 @@ namespace API_Financeira.Controllers
 
                 return Ok(stockDTOs);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao obter os dados da ação");
             }

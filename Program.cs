@@ -1,6 +1,4 @@
 using API_Financeira.Service;
-using FirebaseAdmin;
-using Google.Cloud.Firestore;
 
 var builder = WebApplication.CreateBuilder(args);
 
