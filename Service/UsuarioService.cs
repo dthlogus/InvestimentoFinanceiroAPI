@@ -2,6 +2,9 @@
 using API_Financeira.Models;
 using AutoMapper;
 using FirebaseAdmin;
+using FireSharp;
+using FireSharp.Config;
+using FireSharp.Interfaces;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using System.Net.Http;
@@ -10,35 +13,41 @@ namespace API_Financeira.Service
 {
     public class UsuarioService
     {
-        FirestoreDb db = FirestoreDb.Create("investimentoFinanceiro");
+
 
         private readonly IMapper _mapper;
 
         public UsuarioService(IMapper mapper)
         {
-            FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.GetApplicationDefault(),
-            });
+            string appName = "InvestimentoFinanceiro";
+
+
+
             _mapper = mapper;
         }
 
+        IFirebaseConfig firebase = new FirebaseConfig()
+        {
+            AuthSecret = "amWJOt8ZgCLnmjHIBz72WHD4WV5xDt0pGXqUigfs",
+            BasePath = "https://investimentofinanceiro-ab26f-default-rtdb.firebaseio.com/"
+        };
+
+        IFirebaseClient client;
+
         public async Task<UsuarioDTO> adicionarUsuario(Usuario usuario)
         {
-            Dictionary<string, object> user = new Dictionary<string, object>
+            try
             {
-                {"Username", usuario.Username},
-                {"Nome", usuario.Nome},
-                {"Senha", usuario.Senha},
-                {"Email", usuario.Email}
-            };
-
-            DocumentReference addDocRef = await db.Collection("User").AddAsync(user);
-            DocumentSnapshot snapshot = await addDocRef.GetSnapshotAsync();
-            Usuario UsusarioRetorno = snapshot.ConvertTo<Usuario>();
-            UsuarioDTO userDto = _mapper.Map<Usuario, UsuarioDTO>(UsusarioRetorno);
-            userDto.Id = snapshot.Id;
-            return userDto;
+                client = new FirebaseClient(firebase);
+                var user = client.Set("ListaUsuario/" + usuario.Username, usuario);
+                UsuarioDTO userDTO = _mapper.Map<Usuario, UsuarioDTO>(user.ResultAs<Usuario>());
+                userDTO.Id = "ListaUsuario/" + usuario.Username;
+                return userDTO;
+            }catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }
+
