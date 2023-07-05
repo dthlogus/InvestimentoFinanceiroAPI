@@ -9,6 +9,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<StockService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<PerfilUsuarioService>();
 
 var app = builder.Build();
 
