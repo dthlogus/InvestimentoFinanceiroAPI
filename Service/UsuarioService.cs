@@ -55,7 +55,7 @@ namespace API_Financeira.Service
             }
         }
 
-        public bool buscarUsuario(UsuarioAutenticacao usuario)
+        public bool autenticarUsuario(UsuarioAutenticacao usuario)
         {
             try { 
             client = new FirebaseClient(firebase);
@@ -73,6 +73,27 @@ namespace API_Financeira.Service
                 throw ex;
             }
 
+        }
+
+        public UsuarioDTO buscarUsuario(string id)
+        {
+            try
+            {
+                client = new FirebaseClient(firebase);
+                var userReturn = client.Get(id);
+                if (userReturn.Body == "null")
+                {
+                    return null;
+                }
+                Usuario usuario = userReturn.ResultAs<Usuario>();
+                UsuarioDTO usuarioDTO = _mapper.Map<Usuario, UsuarioDTO>(usuario);
+                usuarioDTO.Id = id;
+                return usuarioDTO;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

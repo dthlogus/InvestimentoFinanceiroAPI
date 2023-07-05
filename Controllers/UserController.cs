@@ -11,7 +11,7 @@ namespace API_Financeira.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController
+    public class UserController : ControllerBase
     {
         private readonly UsuarioService _usuarioService;
 
@@ -20,14 +20,15 @@ namespace API_Financeira.Controllers
             _usuarioService = usuarioService;
         }
 
-        [HttpPost("autenticarUsuario")]
+        [HttpPost("AutenticarUsuario")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult AutenticarUsuario(UsuarioAutenticacao usuario)
         {
             try
             {
-                Boolean usuarioRetorno = _usuarioService.buscarUsuario(usuario);
+                bool usuarioRetorno = _usuarioService.autenticarUsuario(usuario);
                 if (usuarioRetorno)
                 {
                     return new OkResult();
@@ -36,16 +37,18 @@ namespace API_Financeira.Controllers
                 {
                     return new NotFoundObjectResult("Usuário não encontrado ou senha inválida.");
                 }
-            }catch (UsuarioJaExisteException ex) {
+            }
+            catch (UsuarioJaExisteException ex)
+            {
                 return new BadRequestObjectResult(ex.Message);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return new BadRequestObjectResult(ex.Message);
             }
         }
 
-        [HttpPost("criarUsuario")]
+        [HttpPost("CriarUsuario")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<UsuarioDTO> CriarUsuario(Usuario usuario)
@@ -53,14 +56,36 @@ namespace API_Financeira.Controllers
             try
             {
                 UsuarioDTO usuarioRetorno = _usuarioService.adicionarUsuario(usuario);
-                return new CreatedAtActionResult(nameof(CriarUsuario), "Usuario" ,new { id =  usuarioRetorno.Id}, usuarioRetorno);
-            }catch (UsuarioJaExisteException ex) 
+                return CreatedAtRoute(nameof(buscarUsuario), new { id = usuarioRetorno.Id }, usuarioRetorno);
+            }
+            catch (UsuarioJaExisteException ex)
             {
                 return new BadRequestObjectResult(ex.Message);
             }
             catch (Exception ex)
             {
                 return new BadRequestObjectResult(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}", Name = nameof(buscarUsuario))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<UsuarioDTO> buscarUsuario(string id)
+        {
+            try
+            {
+                UsuarioDTO usuarioDTO = _usuarioService.buscarUsuario(id);
+                if (usuarioDTO == null)
+                {
+                    return new NotFoundObjectResult("Usuário não encontrado");
+                }
+                return usuarioDTO;
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult("Ocorreu um erro inesperado. \n" + ex.Message);
             }
         }
     }
