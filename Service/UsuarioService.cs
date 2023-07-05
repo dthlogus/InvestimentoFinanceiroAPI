@@ -5,6 +5,9 @@ using AutoMapper;
 using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API_Financeira.Service
 {
@@ -33,10 +36,12 @@ namespace API_Financeira.Service
             {
                 client = new FirebaseClient(firebase);
                 var userReturn = client.Get("ListaUsuario/" + usuario.Username);
-                if (userReturn != null)
+                if (userReturn.Body != "null")
                 {
                     throw new UsuarioJaExisteException("Esse usuário já existe, por favor, escolha outro");
                 }
+                string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+                usuario.Senha = senhaCriptografada;
                 var user = client.Set("ListaUsuario/" + usuario.Username, usuario);
                 UsuarioDTO userDTO = _mapper.Map<Usuario, UsuarioDTO>(user.ResultAs<Usuario>());
                 userDTO.Id = "ListaUsuario/" + usuario.Username;
@@ -48,6 +53,26 @@ namespace API_Financeira.Service
             {
                 throw new Exception("Ocorreu um erro inesperado");
             }
+        }
+
+        public bool buscarUsuario(UsuarioAutenticacao usuario)
+        {
+            try { 
+            client = new FirebaseClient(firebase);
+            var userReturn = client.Get("ListaUsuario/" + usuario.Username);
+            if (userReturn == null)
+            {
+                return false;
+            }
+
+            bool match = BCrypt.Net.BCrypt.Verify(usuario.Senha, userReturn.ResultAs<Usuario>().Senha);
+            return match;
+
+            }catch(Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }
