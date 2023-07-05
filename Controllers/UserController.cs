@@ -4,7 +4,6 @@ using API_Financeira.DTO;
 using API_Financeira.Exceptions;
 using API_Financeira.Models;
 using API_Financeira.Service;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API_Financeira.Controllers
@@ -72,20 +71,40 @@ namespace API_Financeira.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<UsuarioDTO> buscarUsuario(string id)
+        public ActionResult<Usuario> buscarUsuario(string id)
         {
             try
             {
-                UsuarioDTO usuarioDTO = _usuarioService.buscarUsuario(id);
-                if (usuarioDTO == null)
+                Usuario usuario = _usuarioService.buscarUsuario(id);
+                if (usuario == null)
                 {
                     return new NotFoundObjectResult("Usuário não encontrado");
                 }
-                return usuarioDTO;
+                return usuario;
             }
             catch (Exception ex)
             {
                 return new BadRequestObjectResult("Ocorreu um erro inesperado. \n" + ex.Message);
+            }
+        }
+
+        [HttpPut("AtualizarUsuario")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UsuarioDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<UsuarioDTO> AtualizarUsuario(Usuario usuario)
+        {
+            try
+            {
+                bool confirmacao = _usuarioService.atualizarUsuario(usuario);
+                if (confirmacao)
+                {
+                    return Ok();
+                }
+                return new NotFoundObjectResult("Usuário não encontrado");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
             }
         }
     }

@@ -75,7 +75,7 @@ namespace API_Financeira.Service
 
         }
 
-        public UsuarioDTO buscarUsuario(string id)
+        public Usuario buscarUsuario(string id)
         {
             try
             {
@@ -86,13 +86,31 @@ namespace API_Financeira.Service
                     return null;
                 }
                 Usuario usuario = userReturn.ResultAs<Usuario>();
-                UsuarioDTO usuarioDTO = _mapper.Map<Usuario, UsuarioDTO>(usuario);
-                usuarioDTO.Id = id;
-                return usuarioDTO;
+                return usuario;
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public bool atualizarUsuario(Usuario usuario)
+        {
+            try
+            {
+                client = new FirebaseClient(firebase);
+                var usuarioEncontrado = client.Get("ListaUsuario/" + usuario.Username);
+                if (usuarioEncontrado.Body == "null")
+                {
+                    return false;
+                }
+                string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+                usuario.Senha = senhaCriptografada;
+                var usuarioRetorno = client.Update("ListaUsuario/" + usuario.Username, usuario);
+                return true;
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }
