@@ -1,6 +1,4 @@
-﻿
-
-using API_Financeira.DTO;
+﻿using API_Financeira.DTO;
 using API_Financeira.Exceptions;
 using API_Financeira.Models;
 using API_Financeira.Service;

@@ -42,6 +42,7 @@ namespace API_Financeira.Service
                 }
                 string senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
                 usuario.Senha = senhaCriptografada;
+                usuario = criarPerfilVazio(usuario);
                 var user = client.Set("ListaUsuario/" + usuario.Username, usuario);
                 UsuarioDTO userDTO = _mapper.Map<Usuario, UsuarioDTO>(user.ResultAs<Usuario>());
                 userDTO.Id = "ListaUsuario/" + usuario.Username;
@@ -112,6 +113,17 @@ namespace API_Financeira.Service
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        private Usuario criarPerfilVazio(Usuario usuario)
+        {
+            usuario.Perfil.pv = 0;
+            usuario.Perfil.pvp = 0;
+            usuario.Perfil.vpa = 0;
+            usuario.Perfil.lpa = 0;
+            usuario.Perfil.dy = 0;
+            usuario.Perfil.simbolos = "";
+            return usuario;
         }
     }
 }

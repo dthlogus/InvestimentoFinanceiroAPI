@@ -1,6 +1,7 @@
 ﻿using API_Financeira.DTO;
 using API_Financeira.Models;
 using AutoMapper;
+using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
 
@@ -25,15 +26,16 @@ namespace API_Financeira.Service
 
         IFirebaseClient? client;
 
-        public UsuarioDTO adicionarPerfil(PerfilUsuarioDTO perfilDto)
+        public UsuarioDTO atualizarPerfil(PerfilUsuarioDTO perfilDto)
         {
-            try{ 
-                PerfilUsuario perfil = _mapper.Map<PerfilUsuarioDTO, PerfilUsuario>(perfilDto);
-                var usuarioRetorno = client.Get(perfilDto.idUsuario);
-                Usuario user = usuarioRetorno.ResultAs<Usuario>();
-                user.Perfil = perfil;
-                var perfilRetorno = client.Push(perfilDto.idUsuario, user);
-                UsuarioDTO usuarioDTO = _mapper.Map<Usuario, UsuarioDTO>(perfilRetorno.ResultAs<Usuario>());
+            try{
+                client = new FirebaseClient(firebase);
+                var usuarioEncontrado = client.Get(perfilDto.idUsuario);
+                Usuario user = usuarioEncontrado.ResultAs<Usuario>();
+                PerfilUsuario perfilMapeado = _mapper.Map<PerfilUsuarioDTO, PerfilUsuario>(perfilDto);
+                user.Perfil = perfilMapeado;
+                var usuarioAtualizado = client.Update(perfilDto.idUsuario, user);
+                UsuarioDTO usuarioDTO = _mapper.Map<Usuario, UsuarioDTO>(usuarioAtualizado.ResultAs<Usuario>());
                 usuarioDTO.Id = perfilDto.idUsuario;
                 return usuarioDTO;
             }catch (Exception ex)

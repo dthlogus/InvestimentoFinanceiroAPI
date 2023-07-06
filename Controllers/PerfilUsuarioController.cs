@@ -1,6 +1,5 @@
 ﻿using API_Financeira.DTO;
 using API_Financeira.Exceptions;
-using API_Financeira.Models;
 using API_Financeira.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,15 +16,15 @@ namespace API_Financeira.Controllers
             _perfilService = perfilService;
         }
 
-        [HttpPost("CriarPerfil")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UsuarioDTO))]
+        [HttpPut("AtualizarPerfil")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<UsuarioDTO> CriarPerfil(PerfilUsuarioDTO perfilDTO)
+        public ActionResult<UsuarioDTO> AtualizarPerfil(PerfilUsuarioDTO perfilDTO)
         {
             try
             {
-                UsuarioDTO usuarioRetorno = _perfilService.adicionarPerfil(perfilDTO);
-                return CreatedAtRoute(nameof(buscarPerfil), new { id = usuarioRetorno.Id }, usuarioRetorno);
+                _perfilService.atualizarPerfil(perfilDTO);
+                return Ok();
             }
             catch (UsuarioJaExisteException ex)
             {
@@ -35,15 +34,6 @@ namespace API_Financeira.Controllers
             {
                 return new BadRequestObjectResult(ex.Message);
             }
-        }
-
-        [HttpGet("{id}", Name = nameof(buscarPerfil))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<Usuario> buscarPerfil(string id)
-        {
-            return Ok();
         }
     }
 }
