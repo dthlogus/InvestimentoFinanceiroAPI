@@ -5,9 +5,6 @@ using AutoMapper;
 using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API_Financeira.Service
 {
