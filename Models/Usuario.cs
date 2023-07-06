@@ -13,5 +13,7 @@ namespace API_Financeira.Models
         public string Senha { get; set; }
         [FirestoreProperty]
         public string Email { get; set; }
+        [FirestoreProperty]
+        public PerfilUsuario Perfil { get; set; }
     }
 }
